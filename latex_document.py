@@ -14,7 +14,7 @@ class LaTeXDocument:
         self._article_options = None
 
         # Project Name
-        self._name = name
+        self._name = name.replace(' ', '_')
 
         # Folder locations
         self._files_dir = files_dir
