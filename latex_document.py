@@ -109,10 +109,10 @@ class LaTeXDocument:
         return self.__section_handler__(1, src, name, label)
 
     def subsection(self, src, name, label=None):
-        return self.__section_handler__(1, src, name, label)
+        return self.__section_handler__(2, src, name, label)
 
     def subsubsection(self, src, name, label=None):
-        return self.__section_handler__(1, src, name, label)
+        return self.__section_handler__(3, src, name, label)
 
     def text(self, text):
         parsed, _ = self.__parse__(text, None, detect='string')
