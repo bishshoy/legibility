@@ -3,6 +3,7 @@ import yaml
 
 from parsers import Parser
 from tex_processor import *
+from create_base_files import *
 
 
 class LaTeXDocument:
@@ -154,7 +155,8 @@ class LaTeXDocument:
         }
 
     def bibliography(self, src, style='plain'):
-        self.create_file(src)
+        if not os.path.isfile(src):
+            create_base_bib(src)
         self._bibliography['style'] = style
         self._bibliography['src'] = src[:-4]
 
