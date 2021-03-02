@@ -155,8 +155,8 @@ class LaTeXDocument:
         }
 
     def bibliography(self, src, style='plain'):
-        if not os.path.isfile(src):
-            create_base_bib(src)
+        if not os.path.isfile(self._files_dir+src):
+            create_base_bib(self._files_dir+src)
         self._bibliography['style'] = style
         self._bibliography['src'] = src[:-4]
 
