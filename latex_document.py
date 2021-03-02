@@ -163,8 +163,8 @@ class LaTeXDocument:
     def generate_tex(self, dst=None):
         generate_tex(self, dst)
 
-    def compile(self, dst='./', clean=True):
-        compile(self, dst, clean)
+    def compile(self, dst='./', processor='latexmk', clean=True):
+        compile(self, dst, processor, clean)
 
     def __idx__(self):
         return str(len(self._contents))

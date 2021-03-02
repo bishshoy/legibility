@@ -100,7 +100,7 @@ def generate_tex(doc, dst=None):
     return contents
 
 
-def compile(doc, dst='./', clean=True):
+def compile(doc, dst='./', processor='latexmk', clean=True):
     doc.generate_tex()
 
     cmd = 'cd '+doc._files_dir
@@ -113,29 +113,35 @@ def compile(doc, dst='./', clean=True):
         for e in ext:
             cmd += ' rm '+doc._name+'.'+e+';'
 
-    if doc._bibliography:
-        pdflatex_args = ' -draftmode'
-    else:
-        pdflatex_args = ''
-
-    # pdflatex
-    cmd += ' pdflatex'+pdflatex_args
-    cmd += ' '+doc._name+'.tex'
-    cmd += ' &&'
-
-    if doc._bibliography:
-        # bibtex
-        cmd += ' bibtex'
-        cmd += ' '+doc._name+'.aux'
-        cmd += ' &&'
+    if processor == 'pdflatex':
+        if doc._bibliography:
+            pdflatex_args = ' -draftmode'
+        else:
+            pdflatex_args = ''
 
         # pdflatex
         cmd += ' pdflatex'+pdflatex_args
         cmd += ' '+doc._name+'.tex'
         cmd += ' &&'
 
-        # pdflatex
-        cmd += ' pdflatex'
+        if doc._bibliography:
+            # bibtex
+            cmd += ' bibtex'
+            cmd += ' '+doc._name+'.aux'
+            cmd += ' &&'
+
+            # pdflatex
+            cmd += ' pdflatex'+pdflatex_args
+            cmd += ' '+doc._name+'.tex'
+            cmd += ' &&'
+
+            # pdflatex
+            cmd += ' pdflatex'
+            cmd += ' '+doc._name+'.tex'
+            cmd += ' &&'
+
+    elif processor == 'latexmk':
+        cmd += ' latexmk -pdf'
         cmd += ' '+doc._name+'.tex'
         cmd += ' &&'
 
