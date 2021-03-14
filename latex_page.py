@@ -10,18 +10,6 @@ class LaTeXPage(LaTeXDocument):
     def text(self, src):
         super().text(src)
 
-    def graphics(self, src,
-                 figure='inline',
-                 top=False,
-                 center=True,
-                 scale=1.0,
-                 width='\\textwidth'):
-        super().graphics(src, figure=figure, top=top,
-                         center=center, scale=scale, width=width)
-
-    def table(self, src):
-        super().table(src)
-
     # Restrict Super Access
     def block_method(self, var):
         err = '''
@@ -51,6 +39,12 @@ class LaTeXPage(LaTeXDocument):
 
     def subsubsection(self, *a, **k):
         self.block_method('subsubsection')
+
+    def table(self, *a, **k):
+        self.block_method('table')
+
+    def graphics(self, *a, **k):
+        self.block_method('graphics')
 
     def bibliography(self, *a, **k):
         self.block_method('bibliogrpahy')
