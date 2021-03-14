@@ -209,6 +209,14 @@ class LaTeXDocument:
             ])
             page_color = '{sepia_background}'
             text_color = 'sepia_text'
+        elif theme == 'dusk':
+            self.commands([
+                '\\definecolor{dusk_background}{RGB}{43,41,37}',
+                '\\definecolor{dusk_text}{RGB}{243,232,212}'
+            ])
+            page_color = '{dusk_background}'
+            text_color = 'dusk_text'
+
         self.imports(['xcolor', 'pagecolor'])
         self.commands([
             '\\pagecolor'+page_color,
