@@ -4,7 +4,9 @@ import os
 def generate_tex(doc, dst=None):
     if dst == None:
         dst = doc._files_dir
+
     class_text = '\\documentclass'
+
     if doc._article_options:
         class_text += '['+','.join(doc._article_options)+']'
     class_text += '{'+doc._article_class+'}'
@@ -34,18 +36,34 @@ def generate_tex(doc, dst=None):
         if v['email']:
             lines += ['\\affil['+v['affil']+']{\\texttt{'+v['email']+'}}']
 
+    # Frontmatter
+    lines += [doc._frontmatter]
+
     # Date
     lines += ['\\date{'+doc._date+'}']
 
     # Document
     lines += ['\\begin{document}']
-    lines += ['\\maketitle']
+
+    # Maketitle before abstract for ICLR
+    if doc._profile == 'iclr':
+        lines += ['\\maketitle']
 
     # Abstract
     if doc._abstract != '':
         lines += ['\\begin{abstract}']
         lines += [doc._abstract]
         lines += ['\\end{abstract}']
+
+    # Keywords
+    if doc._keywords != []:
+        lines += ['\\begin{keyword}']
+        lines += [' \sep '.join(doc._keywords)]
+        lines += ['\\end{keyword}']
+
+    # Maketitle before abstract for Elsevier
+    if doc._profile == 'elsevier':
+        lines += ['\\maketitle']
 
     # Sections, Images, Tables and Text
     for k, v in doc._contents.items():
@@ -93,10 +111,23 @@ def generate_tex(doc, dst=None):
         lines += ['\\bibliographystyle{'+doc._bibliography['style']+'}']
         lines += ['\\bibliography{'+doc._bibliography['src']+'}']
 
+    # Appendix
+    for k, v in doc._contents.items():
+        tag = k[-3:]
+        if tag == '_sa':
+            lines += ['\\newpage']
+            lines += ['\\appendix']
+            lines += ['\\section{'+v['name']+'}']
+            lines += ['\\label{'+v['label']+'}']
+        if tag == '_ap':
+            lines += [v['lines']]
+        lines += ['\n']
+
     lines += ['\\end{document}']
 
     contents = '\n'.join(lines)
     open(dst+doc._name+'.tex', 'w+').writelines(contents)
+    print('The TeX file has been generated.')
     return contents
 
 

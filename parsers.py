@@ -21,7 +21,7 @@ class Parser:
             elif src[-4:] == '.bib':
                 parsed = self.tex_parser(root+src)
             else:
-                raise FileNotFoundError(src+' not found')
+                raise NotImplementedError(src+' cannot be parsed')
         elif self._detect == 'string':
             parsed = self.string_parser(src)
         return parsed

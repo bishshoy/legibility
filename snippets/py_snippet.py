@@ -1,4 +1,4 @@
-from pytex import LaTeXPage
+from legibility import LaTeXPage
 
 
 def main(_compile_):
