@@ -73,10 +73,10 @@ class LaTeXDocument:
                 'lines': ''
             }
             self.__append_page__(parsed[parsed_type], is_appendix=(True if level == 'a' else False))
-    
+
     # Not allowed in page
     def profile(self, profile):
-        process_profile(self, profile)        
+        process_profile(self, profile)
 
     # Not allowed in page
     # TODO: May not be required anymore
@@ -90,8 +90,10 @@ class LaTeXDocument:
             if p not in self._imports:
                 self._imports.append(p)
 
-    def commands(self, cmd):
-        self._commands.extend(cmd)
+    def commands(self, commands):
+        for command in commands:
+            if command not in self._commands:
+                self._commands.append(command)
 
     # Not allowed in page
     def title(self, title):
