@@ -1,4 +1,6 @@
 from utils import *
+
+import psutil
 import os
 
 
@@ -27,7 +29,7 @@ def generate_tex(doc, dst, images):
 
     # Commands
     if images:
-    lines += ['\\graphicspath{{../'+doc._images_dir+'}}']
+        lines += ['\\graphicspath{{../'+doc._images_dir+'}}']
     else:
         lines += ['\\graphicspath{{../'+doc._images_dir+'blank/}}']
     lines += doc._commands
@@ -135,14 +137,18 @@ def generate_tex(doc, dst, images):
     contents = '\n'.join(lines)
     open(dst+doc._name+'.tex', 'w+').writelines(contents)
     if images:
-    print('The TeX file has been generated.')
+        print('The TeX file has been generated.')
     else:
         print('The TeX file with blank images has been generated.')
     return contents
 
 
-def compile(doc, dst='./', processor='latexmk', clean=True):
-    doc.generate_tex()
+def compile(doc, dst, processor, images, clean, live):
+    # check is latexmk is already running
+    if is_live_server_running():
+        print('live server already running. genereting tex...')
+        doc.generate_tex(images=images)
+        return
 
     cmd = 'cd '+doc._files_dir
     cmd += ' &&'
@@ -183,6 +189,8 @@ def compile(doc, dst='./', processor='latexmk', clean=True):
 
     elif processor == 'latexmk':
         cmd += ' latexmk -pdf'
+        if live:
+            cmd += ' -pvc'
         cmd += ' '+doc._name+'.tex'
         cmd += ' &&'
 
@@ -193,4 +201,15 @@ def compile(doc, dst='./', processor='latexmk', clean=True):
     cmd += ' echo "All complete."'
 
     print(cmd)
+    doc.generate_tex(images=images)
     return os.system(cmd)
+
+
+def is_live_server_running():
+    for pid in psutil.pids():
+        p = psutil.Process(pid)
+        if 'perl' in p.name():
+            if 'latexmk' in p.cmdline()[1]:
+                return 1
+
+    return 0

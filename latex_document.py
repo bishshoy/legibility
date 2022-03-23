@@ -209,8 +209,8 @@ class LaTeXDocument:
     def generate_tex(self, dst=None, images=True):
         generate_tex(self, dst, images)
 
-    def compile(self, dst='./', processor='latexmk', clean=True):
-        compile(self, dst, processor, clean)
+    def compile(self, dst='./',  processor='latexmk', images=True, clean=True, live=False):
+        compile(self, dst, processor, images, clean, live)
 
     def __idx__(self):
         return str(len(self._contents))
