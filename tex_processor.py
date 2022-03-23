@@ -1,7 +1,11 @@
+from utils import *
 import os
 
 
-def generate_tex(doc, dst=None):
+def generate_tex(doc, dst, images):
+    if not images:
+        generate_blank_images(doc)
+
     if dst == None:
         dst = doc._files_dir
 
@@ -22,7 +26,10 @@ def generate_tex(doc, dst=None):
             lines += ['\\usepackage{'+i+'}']
 
     # Commands
+    if images:
     lines += ['\\graphicspath{{../'+doc._images_dir+'}}']
+    else:
+        lines += ['\\graphicspath{{../'+doc._images_dir+'blank/}}']
     lines += doc._commands
 
     # Title
@@ -127,7 +134,10 @@ def generate_tex(doc, dst=None):
 
     contents = '\n'.join(lines)
     open(dst+doc._name+'.tex', 'w+').writelines(contents)
+    if images:
     print('The TeX file has been generated.')
+    else:
+        print('The TeX file with blank images has been generated.')
     return contents
 
 

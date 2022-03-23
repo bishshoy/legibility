@@ -206,8 +206,8 @@ class LaTeXDocument:
     def appendix(self, src, name=None, label=None):
         return self.__section_handler__('a', src, name or 'Appendix', label)
 
-    def generate_tex(self, dst=None):
-        generate_tex(self, dst)
+    def generate_tex(self, dst=None, images=True):
+        generate_tex(self, dst, images)
 
     def compile(self, dst='./', processor='latexmk', clean=True):
         compile(self, dst, processor, clean)
