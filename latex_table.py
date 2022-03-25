@@ -195,9 +195,6 @@ class LaTeXTable(LaTeXPage):
 
         lines += ['\\begin{tabular}']
         
-        if self._label:
-            lines += ['\\label{'+self._label+'}']
-
         _alignment_text = ''
         if self._vertical_locations[0]:
             _alignment_text += '|'
@@ -207,6 +204,9 @@ class LaTeXTable(LaTeXPage):
                 _alignment_text += '|'
 
         lines[-1] += '{'+_alignment_text+'}'
+        
+        if self._label:
+            lines += ['\\label{'+self._label+'}']
 
         if self._full_horizontal_locations[0]:
             lines += ['\\toprule']
