@@ -11,13 +11,13 @@ def generate_tex(doc, dst, images):
     if dst == None:
         dst = doc._files_dir
 
-    class_text = '\\documentclass'
+    _class_text = '\\documentclass'
 
     if doc._article_options:
-        class_text += '['+','.join(doc._article_options)+']'
-    class_text += '{'+doc._article_class+'}'
+        _class_text += '['+','.join(doc._article_options)+']'
+    _class_text += '{'+doc._article_class+'}'
 
-    lines = [class_text]
+    lines = [_class_text]
 
     # Imports
     doc.imports(['graphicx'])
@@ -35,7 +35,8 @@ def generate_tex(doc, dst, images):
     lines += doc._commands
 
     # Title
-    lines += ['\\title{'+doc._title+'}']
+    if doc._title:
+        lines += ['\\title{'+doc._title+'}']
 
     # Authors
     for k, v in doc._authors.items():
@@ -46,10 +47,12 @@ def generate_tex(doc, dst, images):
             lines += ['\\affil['+v['affil']+']{\\texttt{'+v['email']+'}}']
 
     # Frontmatter
-    lines += [doc._frontmatter]
+    if doc._frontmatter:
+        lines += [doc._frontmatter]
 
     # Date
-    lines += ['\\date{'+doc._date+'}']
+    if doc._date:
+        lines += ['\\date{\\'+doc._date+'}']
 
     # Document
     lines += ['\\begin{document}']
@@ -59,7 +62,7 @@ def generate_tex(doc, dst, images):
         lines += ['\\maketitle']
 
     # Abstract
-    if doc._abstract != '':
+    if doc._abstract:
         lines += ['\\begin{abstract}']
         lines += [doc._abstract]
         lines += ['\\end{abstract}']
@@ -95,11 +98,11 @@ def generate_tex(doc, dst, images):
             else:
                 top = '*' if v['top'] else ''
                 lines += ['\\begin{figure'+top+'}['+v['figure']+']']
-                if v['center']:
+                if v['centered']:
                     lines += ['\\centering']
             lines += ['\\includegraphics[' +
                       'scale='+v['scale']+',' +
-                      'width='+v['width']+']' +
+                      'width=\\'+v['width']+']' +
                       '{'+v['src']+'}']
             if v['figure'] == 'inline':
                 lines += ['']

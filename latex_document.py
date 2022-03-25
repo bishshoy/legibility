@@ -9,7 +9,7 @@ from create_base_files import *
 
 class LaTeXDocument:
 
-    def __init__(self, name, files_dir, images_dir) -> None:
+    def __init__(self, name, files_dir, images_dir, tables_dir) -> None:
         # Document attributes
         self._profile = None
         self._article_class = 'article'
@@ -21,6 +21,7 @@ class LaTeXDocument:
         # Folder locations
         self._files_dir = files_dir
         self._images_dir = images_dir
+        self._tables_dir = tables_dir
 
         # Authors Info
         self._authors = OrderedDict()
@@ -28,10 +29,10 @@ class LaTeXDocument:
         # All contents
         self._imports = []
         self._commands = []
-        self._title = ''
-        self._date = ''
-        self._frontmatter = ''
-        self._abstract = ''
+        self._title = None
+        self._date = None
+        self._frontmatter = None
+        self._abstract = None
         self._keywords = []
         self._contents = OrderedDict()
         self._bibliography = {}
@@ -41,8 +42,8 @@ class LaTeXDocument:
         self._labels = {}
 
     def __parse__(self, src, name, detect='auto'):
-        parser = Parser(name, self._files_dir, self._images_dir, detect=detect)
-        parsed = parser.parse(src, root=self._files_dir)
+        parser = Parser(name, self._files_dir, self._images_dir, self._tables_dir, detect=detect)
+        parsed = parser.parse(src)
         parsed_type = next(iter(parsed))
         return parsed, parsed_type
 
@@ -74,11 +75,9 @@ class LaTeXDocument:
             }
             self.__append_page__(parsed[parsed_type], is_appendix=(True if level == 'a' else False))
 
-    # Not allowed in page
     def profile(self, profile):
         process_profile(self, profile)
 
-    # Not allowed in page
     # TODO: May not be required anymore
     #       since we have profiles
     def article_class(self, src, options=None):
@@ -95,11 +94,9 @@ class LaTeXDocument:
             if command not in self._commands:
                 self._commands.append(command)
 
-    # Not allowed in page
     def title(self, title):
         self._title = title.strip()
 
-    # Not allowed in page
     def author(self, name, email, address):
         self._authors[len(self._authors)] = {
             'name': name,
@@ -107,16 +104,13 @@ class LaTeXDocument:
             'address': address
         }
 
-    # Not allowed in page
-    def date(self, date_str='\\today'):
+    def date(self, date_str='today'):
         self._date = date_str.strip()
 
-    # Not allowed in page
     def frontmatter(self, text):
         parsed, parsed_type = self.__parse__(text, None, detect='string')
         self._frontmatter = parsed[parsed_type]
 
-    # Not allowed in page
     def abstract(self, src):
         parsed, parsed_type = self.__parse__(src, 'Abstract')
         if parsed_type == 'lines':
@@ -128,19 +122,15 @@ class LaTeXDocument:
                     lines += [v['lines'].strip()]
             self._abstract += '\n\n'.join(lines)
 
-    # Not allowed in page
     def keywords(self, words):
         self._keywords += words
 
-    # Not allowed in page
     def section(self, src, name, label=None):
         return self.__section_handler__(1, src, name, label)
 
-    # Not allowed in page
     def subsection(self, src, name, label=None):
         return self.__section_handler__(2, src, name, label)
 
-    # Not allowed in page
     def subsubsection(self, src, name, label=None):
         return self.__section_handler__(3, src, name, label)
 
@@ -150,7 +140,6 @@ class LaTeXDocument:
             'lines': parsed['lines']
         }
 
-    # Not allowed in page
     def page(self, page):
         name = page.split('.')[0]
         parsed, parsed_type = self.__parse__(page, name, detect='ext')
@@ -159,50 +148,50 @@ class LaTeXDocument:
         }
         self.__append_page__(parsed[parsed_type], lines_only=True)
 
-    # Not allowed in page
     def table(self, src):
         assert ((src[-3:] == '.py') or (src[-4:] == '.tex')), '''
             Only .py or .tex files allowed for creating tables.
             Include captions and labels in the body of the table.
             '''
         name = src.split('.')[0]
-        parsed, parsed_type = self.__parse__(src, name, detect='ext')
+        if src[-3:] == '.py':
+            parsed, parsed_type = self.__parse__(src, name, detect='table')
+        elif src[-4:] == '.tex':
+            parsed, parsed_type = self.__parse__(src, name, detect='ext')
         if parsed_type == 'lines':
             self._contents[self.__idx__()+'_tb'] = {
                 'lines': parsed[parsed_type]
             }
         elif parsed_type == 'page':
+            parsed[parsed_type].finalize()
             self._contents[self.__idx__()+'_tb'] = {
                 'lines': ''
             }
             self.__append_page__(parsed[parsed_type], lines_only=True)
 
-    # Not allowed in page
     def graphics(self, src,
                  figure='inline',
                  top=False,
-                 center=True,
+                 centered=True,
                  scale=1.0,
-                 width='\\textwidth'):
+                 width='textwidth'):
         self._contents[self.__idx__()+'_gx'] = {
             'src': src,
             'figure': figure,
             'top': top,
-            'center': center,
+            'centered': centered,
             'scale': str(scale),
-            'width': str(width),
+            'width': '\\'+str(width),
             'caption': self._captions.get(src, None),
             'label': self._labels.get(src, None)
         }
 
-    # Not allowed in page
     def bibliography(self, src, style='plain'):
         if not os.path.isfile(self._files_dir+src):
             create_base_bib(self._files_dir+src)
         self._bibliography['style'] = style
         self._bibliography['src'] = src[:-4]
 
-    # Not allowed in page
     def appendix(self, src, name=None, label=None):
         return self.__section_handler__('a', src, name or 'Appendix', label)
 
@@ -220,7 +209,6 @@ class LaTeXDocument:
         s = ''.join(s)
         return 'sec:' + s[:4]
 
-    # Not allowed in page
     def graphics_info(self, src):
         gs = yaml.load(open(self._files_dir+src), Loader=yaml.SafeLoader)
         if gs:
@@ -230,7 +218,6 @@ class LaTeXDocument:
                 if 'label' in v:
                     self._labels[k] = v['label']
 
-    # Not allowed in page
     def authors_info(self, src):
         au = yaml.load(open(self._files_dir+src), Loader=yaml.SafeLoader)
         if au:

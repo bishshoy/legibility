@@ -1,24 +1,21 @@
-from legibility import LaTeXPage
+from legibility import LaTeXTable
 
 
 def main(_compile_):
-    page = LaTeXPage(
+    table = LaTeXTable(
         name='{{name}}',
         files_dir='{{files_dir}}',
         images_dir='{{images_dir}}',
         tables_dir='{{tables_dir}}'
     )
-
-    page.text(
-        '''
-        
-        '''
-    )
+    
+    table.initialize()
+    
 
     if _compile_:
-        page.compile()
+        table.compile()
 
-    return page
+    return table
 
 
 if __name__ == '__main__':

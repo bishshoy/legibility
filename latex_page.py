@@ -3,8 +3,8 @@ from latex_document import LaTeXDocument
 
 class LaTeXPage(LaTeXDocument):
 
-    def __init__(self, name, files_dir, images_dir) -> None:
-        super().__init__(name, files_dir, images_dir)
+    def __init__(self, name, files_dir, images_dir, tables_dir) -> None:
+        super().__init__(name, files_dir, images_dir, tables_dir)
         
         # Allowed super function
         # imports
