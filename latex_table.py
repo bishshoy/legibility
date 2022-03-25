@@ -38,7 +38,7 @@ class LaTeXTable(LaTeXPage):
         self._vertical_locations = {}
 
         self._cell_merges = {}
-        
+
         self._bold_values = []
         self._underlined_values = []
 
@@ -100,12 +100,12 @@ class LaTeXTable(LaTeXPage):
         for column in columns:
             assert column > 0 and column <= self._num_columns, 'column '+str(column)+' does not exist'
             self._alignment[column-1] = 'center'
-            
+
     def full_horizontal_line(self, *locations):
         for l in locations:
             assert l >= 0 and l <= self._num_rows, 'row '+str(l)+' does not exist'
             self._full_horizontal_locations[l] = True
-    
+
     def horizontal_line(self, row, start, end):
         assert row >= 0 and row <= self._num_rows, 'row outside the table'
         for c in [start, end]:
@@ -124,24 +124,36 @@ class LaTeXTable(LaTeXPage):
         _alignment = {'left': 'l', 'right': 'r', 'center': 'c'}
         assert alignment in _alignment.keys(), 'alignment must be '+' '.join(_alignment.keys())
         self._cell_merges[(cell[0]-1, cell[1]-1)] = ('horizontal', _alignment[alignment])
-    
+
     def vertical_merge(self, cell, adjustment=2):
         assert (cell[0] > 0 and cell[0] <= self._num_rows), 'cell outside the table'
         assert (cell[1] > 0 and cell[1] <= self._num_columns), 'cell outside the table'
         self._cell_merges[(cell[0]-1, cell[1]-1)] = ('vertical', str(adjustment))
-    
+
     def bold(self, *cells):
         for cell in cells:
             assert isinstance(cell, list) or isinstance(cell, tuple), 'cell coordinates must be tuples or lists'
             assert len(cell) == 2, 'cell coordinates must contain two values'
             self._bold_values.append([cell[0]-1, cell[1]-1])
-    
+
+    def bold_rows(self, *rows):
+        for row in rows:
+            assert row > 0 and row <= self._num_rows, 'row outside the table'
+            for j in range(self._num_columns):
+                self.bold([row, j+1])
+
     def underline(self, *cells):
         for cell in cells:
             assert isinstance(cell, list) or isinstance(cell, tuple), 'cell coordinates must be tuples or lists'
             assert len(cell) == 2, 'cell coordinates must contain two values'
             self._underlined_values.append([cell[0]-1, cell[1]-1])
-    
+
+    def underline_rows(self, *rows):
+        for row in rows:
+            assert row > 0 and row <= self._num_rows, 'row outside the table'
+            for j in range(self._num_columns):
+                self.underline([row, j+1])
+
     def caption(self, text):
         self._caption = text
 
@@ -191,34 +203,43 @@ class LaTeXTable(LaTeXPage):
         if self._full_horizontal_locations[0]:
             lines += ['\\toprule']
 
-        # Mergers
-        for x in range(self._num_rows):
-            for y in range(self._num_columns):
-                target_merge, a_param = self._cell_merges.get((x,y), (None, None))
-                if target_merge == 'horizontal':
-                    self._values[x][y] = '\\multicolumn{2}{'+a_param+'}{'+self._values[x][y]+'}'
-                elif target_merge == 'vertical':
-                    self._values[x][y] = '\\multirow{'+a_param+'}{*}{'+self._values[x][y]+'}'
-        
         # Add table values
         for x in range(self._num_rows):
             _line = ''
+
             if x > 0 and x < self._num_rows and self._full_horizontal_locations[x]:
                 lines += ['\\midrule']
+
             for _x, _y in self._horizontal_locations[x]:
                 lines += ['\\cmidrule{'+str(_x+1)+'-'+str(_y)+'}']
+
             for y in range(self._num_columns):
+                braces = 0
+
+                # Mergers
+                target_merge, a_param = self._cell_merges.get((x, y), (None, None))
+
+                if target_merge == 'horizontal':
+                    _line += '\\multicolumn{2}{'+a_param+'}{'
+                    braces += 1
+
+                elif target_merge == 'vertical':
+                    _line += '\\multirow{'+a_param+'}{*}{'
+                    braces += 1
+
                 if [x, y] in self._underlined_values:
                     _line += '\\ul{'
+                    braces += 1
+
                 if [x, y] in self._bold_values:
                     _line += '\\textbf{'
-                _line += self._values[x][y]
-                if [x, y] in self._bold_values:
-                    _line += '}'
-                if [x, y] in self._underlined_values:
-                    _line += '}'
-                if not (y == self._num_columns-1 or self._cell_merges.get((x,y), (None, None))[0] == 'horizontal'):
+                    braces += 1
+
+                _line += self._values[x][y] + '}'*braces
+
+                if not (y == self._num_columns-1 or target_merge == 'horizontal'):
                     _line += ' & '
+
             lines += [_line+' \\\\']
 
         if self._full_horizontal_locations[self._num_rows]:
