@@ -185,6 +185,9 @@ class LaTeXDocument:
             'caption': self._captions.get(src, None),
             'label': self._labels.get(src, None)
         }
+    
+    def newpage(self):
+        self.text('\\newpage')
 
     def bibliography(self, src, style='plain'):
         if not os.path.isfile(self._files_dir+src):
@@ -194,7 +197,7 @@ class LaTeXDocument:
 
     def appendix(self, src, name=None, label=None):
         return self.__section_handler__('a', src, name or 'Appendix', label)
-
+    
     def generate_tex(self, dst=None, images=True):
         generate_tex(self, dst, images)
 
