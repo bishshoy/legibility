@@ -168,8 +168,6 @@ class LaTeXTable(LaTeXPage):
 
         if not self._tight:
             lines += ['\\begin{table}']
-            if self._centered:
-                lines += ['\\centering']
         else:
             lines += ['\\begin{adjustwidth}{-2.5 cm}{-2.5 cm}']
             if self._centered:
@@ -187,8 +185,18 @@ class LaTeXTable(LaTeXPage):
         _position_text += ']'
 
         lines[-1] += _position_text
+        
+        if not self._tight:
+            if self._centered:
+                lines += ['\\centering']
+        
+        if self._caption:
+            lines += ['\\caption{'+self._caption+'}']
 
         lines += ['\\begin{tabular}']
+        
+        if self._label:
+            lines += ['\\label{'+self._label+'}']
 
         _alignment_text = ''
         if self._vertical_locations[0]:
@@ -246,12 +254,6 @@ class LaTeXTable(LaTeXPage):
             lines += ['\\bottomrule']
 
         lines += ['\\end{tabular}']
-
-        if self._caption:
-            lines += ['\\caption{'+self._caption+'}']
-
-        if self._label:
-            lines += ['\\label{'+self._label+'}']
 
         if not self._tight:
             lines += ['\\end{table}']
