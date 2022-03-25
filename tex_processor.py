@@ -35,8 +35,7 @@ def generate_tex(doc, dst, images):
     lines += doc._commands
 
     # Title
-    if doc._title:
-        lines += ['\\title{'+doc._title+'}']
+    lines += ['\\title{'+doc._title+'}']
 
     # Authors
     for k, v in doc._authors.items():
@@ -47,8 +46,7 @@ def generate_tex(doc, dst, images):
             lines += ['\\affil['+v['affil']+']{\\texttt{'+v['email']+'}}']
 
     # Frontmatter
-    if doc._frontmatter:
-        lines += [doc._frontmatter]
+    lines += [doc._frontmatter]
 
     # Date
     if doc._date:
@@ -62,10 +60,9 @@ def generate_tex(doc, dst, images):
         lines += ['\\maketitle']
 
     # Abstract
-    if doc._abstract:
-        lines += ['\\begin{abstract}']
-        lines += [doc._abstract]
-        lines += ['\\end{abstract}']
+    lines += ['\\begin{abstract}']
+    lines += [doc._abstract]
+    lines += ['\\end{abstract}']
 
     # Keywords
     if doc._keywords != []:

@@ -29,10 +29,10 @@ class LaTeXDocument:
         # All contents
         self._imports = []
         self._commands = []
-        self._title = None
+        self._title = ''
         self._date = None
-        self._frontmatter = None
-        self._abstract = None
+        self._frontmatter = ''
+        self._abstract = ''
         self._keywords = []
         self._contents = OrderedDict()
         self._bibliography = {}
