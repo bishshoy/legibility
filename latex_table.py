@@ -64,7 +64,7 @@ class LaTeXTable(LaTeXPage):
                 self._values[x][y] = v
 
         for x in range(self._num_columns):
-            self._alignment[x] = 'right'
+            self._alignment[x] = 'center'
 
         for x in range(self._num_rows+1):
             self._full_horizontal_locations[x] = False
