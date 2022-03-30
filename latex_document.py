@@ -181,7 +181,7 @@ class LaTeXDocument:
             'top': top,
             'centered': centered,
             'scale': str(scale),
-            'width': '\\'+str(width),
+            'width': str(width),
             'caption': self._captions.get(src, None),
             'label': self._labels.get(src, None)
         }
