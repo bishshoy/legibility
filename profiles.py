@@ -12,7 +12,7 @@ def process_profile(doc, profile):
     # TODO: Add custom options like in article_class method
     elif profile == 'elsevier':
         doc._profile = profile
-        doc.article_class('elsarticle')
+        doc.article_class('elsarticle', options=['times'])
         return
     
     else:
