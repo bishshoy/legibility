@@ -31,7 +31,7 @@ def generate_tex(doc, dst, images):
     if images:
         lines += ['\\graphicspath{{../'+doc._images_dir+'}}']
     else:
-        lines += ['\\graphicspath{{../'+doc._images_dir+'blank/}}']
+        lines += ['\\graphicspath{{../'+doc._images_dir+'__images__/}}']
     lines += doc._commands
 
     # Title
