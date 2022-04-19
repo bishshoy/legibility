@@ -197,8 +197,8 @@ def compile(doc, dst, processor, images, clean, live):
         cmd += ' '+doc._name+'.tex'
         cmd += ' &&'
 
-    # move pdf to dst
-    cmd += ' cd - && mv '+doc._files_dir+doc._name+'.pdf '+dst
+    # copy pdf to dst
+    cmd += ' cd - && cp '+doc._files_dir+doc._name+'.pdf '+dst
     cmd += ' &&'
 
     cmd += ' echo "All complete."'
