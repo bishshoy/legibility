@@ -2,10 +2,9 @@ from latex_document import LaTeXDocument
 
 
 class LaTeXPage(LaTeXDocument):
-
     def __init__(self, name, files_dir, images_dir, tables_dir) -> None:
         super().__init__(name, files_dir, images_dir, tables_dir)
-        
+
         # Allowed super function
         # imports
         # commands
@@ -20,13 +19,13 @@ class LaTeXPage(LaTeXDocument):
         '''
         err = err.replace('{{var}}', var)
         raise SyntaxError(err)
-    
+
     def profile(self, *a, **k):
         self.block_method('profile')
-        
+
     def article_class(self, *a, **k):
         self.block_method('article_class')
-        
+
     def title(self, *a, **k):
         self.block_method('title')
 
@@ -41,7 +40,7 @@ class LaTeXPage(LaTeXDocument):
 
     def abstract(self, *a, **k):
         self.block_method('abstract')
-    
+
     def keywords(self, *a, **k):
         self.block_method('keywords')
 
@@ -68,6 +67,6 @@ class LaTeXPage(LaTeXDocument):
 
     def graphics_info(self, *a, **k):
         self.block_method('graphics_info')
-    
+
     def authors_info(self, *a, **k):
         self.block_method('authors_info')

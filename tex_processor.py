@@ -14,8 +14,8 @@ def generate_tex(doc, dst, images):
     _class_text = '\\documentclass'
 
     if doc._article_options:
-        _class_text += '['+','.join(doc._article_options)+']'
-    _class_text += '{'+doc._article_class+'}'
+        _class_text += '[' + ','.join(doc._article_options) + ']'
+    _class_text += '{' + doc._article_class + '}'
 
     lines = [_class_text]
 
@@ -23,28 +23,28 @@ def generate_tex(doc, dst, images):
     doc.imports(['graphicx'])
     for i in doc._imports:
         if i[0] == '[' or i[0] == '{':
-            lines += ['\\usepackage'+i]
+            lines += ['\\usepackage' + i]
         else:
-            lines += ['\\usepackage{'+i+'}']
+            lines += ['\\usepackage{' + i + '}']
 
     # Commands
     if images:
-        lines += ['\\graphicspath{{../'+doc._images_dir+'}}']
+        lines += ['\\graphicspath{{../' + doc._images_dir + '}}']
     else:
-        lines += ['\\graphicspath{{../'+doc._images_dir+'__images__/}}']
+        lines += ['\\graphicspath{{../' + doc._images_dir + '__images__/}}']
     lines += doc._commands
 
     # Title
     if doc._title is not '':
-        lines += ['\\title{'+doc._title+'}']
+        lines += ['\\title{' + doc._title + '}']
 
     # Authors
     for k, v in doc._authors.items():
-        lines += ['\\author['+v['affil']+']{'+v['name']+'}']
+        lines += ['\\author[' + v['affil'] + ']{' + v['name'] + '}']
         if v['address']:
-            lines += ['\\affil['+v['affil']+']{'+v['address']+'}']
+            lines += ['\\affil[' + v['affil'] + ']{' + v['address'] + '}']
         if v['email']:
-            lines += ['\\affil['+v['affil']+']{\\texttt{'+v['email']+'}}']
+            lines += ['\\affil[' + v['affil'] + ']{\\texttt{' + v['email'] + '}}']
 
     # Frontmatter
     if doc._frontmatter is not '':
@@ -52,7 +52,7 @@ def generate_tex(doc, dst, images):
 
     # Date
     if doc._date:
-        lines += ['\\date{\\'+doc._date+'}']
+        lines += ['\\date{\\' + doc._date + '}']
 
     # Document
     lines += ['\\begin{document}']
@@ -81,37 +81,45 @@ def generate_tex(doc, dst, images):
     for k, v in doc._contents.items():
         tag = k[-3:]
         if tag == '_s1':
-            lines += ['\\section{'+v['name']+'}']
-            lines += ['\\label{'+v['label']+'}']
+            lines += ['\\section{' + v['name'] + '}']
+            lines += ['\\label{' + v['label'] + '}']
             lines += [v['lines']]
         if tag == '_s2':
-            lines += ['\\subsection{'+v['name']+'}']
-            lines += ['\\label{'+v['label']+'}']
+            lines += ['\\subsection{' + v['name'] + '}']
+            lines += ['\\label{' + v['label'] + '}']
             lines += [v['lines']]
         if tag == '_s3':
-            lines += ['\\subsubsection{'+v['name']+'}']
-            lines += ['\\label{'+v['label']+'}']
+            lines += ['\\subsubsection{' + v['name'] + '}']
+            lines += ['\\label{' + v['label'] + '}']
             lines += [v['lines']]
         if tag == '_gx':
             if v['figure'] == 'inline':
                 lines += ['']
             else:
                 top = '*' if v['top'] else ''
-                lines += ['\\begin{figure'+top+'}['+v['figure']+']']
+                lines += ['\\begin{figure' + top + '}[' + v['figure'] + ']']
                 if v['centered']:
                     lines += ['\\centering']
-            lines += ['\\includegraphics[' +
-                      'scale='+v['scale']+',' +
-                      'width=\\'+v['width']+']' +
-                      '{'+v['src']+'}']
+            lines += [
+                '\\includegraphics['
+                + 'scale='
+                + v['scale']
+                + ','
+                + 'width=\\'
+                + v['width']
+                + ']'
+                + '{'
+                + v['src']
+                + '}'
+            ]
             if v['figure'] == 'inline':
                 lines += ['']
             else:
                 if v['caption']:
-                    lines += ['\\caption{'+v['caption']+'}']
+                    lines += ['\\caption{' + v['caption'] + '}']
                 if v['label']:
-                    lines += ['\\label{'+v['label']+'}']
-                lines += ['\\end{figure'+top+'}']
+                    lines += ['\\label{' + v['label'] + '}']
+                lines += ['\\end{figure' + top + '}']
         if tag == '_tb':
             lines += [v['lines']]
         if tag == '_tt':
@@ -120,8 +128,8 @@ def generate_tex(doc, dst, images):
 
     # Bibliography
     if doc._bibliography:
-        lines += ['\\bibliographystyle{'+doc._bibliography['style']+'}']
-        lines += ['\\bibliography{'+doc._bibliography['src']+'}']
+        lines += ['\\bibliographystyle{' + doc._bibliography['style'] + '}']
+        lines += ['\\bibliography{' + doc._bibliography['src'] + '}']
 
     # Appendix
     for k, v in doc._contents.items():
@@ -129,8 +137,8 @@ def generate_tex(doc, dst, images):
         if tag == '_sa':
             lines += ['\\newpage']
             lines += ['\\appendix']
-            lines += ['\\section{'+v['name']+'}']
-            lines += ['\\label{'+v['label']+'}']
+            lines += ['\\section{' + v['name'] + '}']
+            lines += ['\\label{' + v['label'] + '}']
         if tag == '_ap':
             lines += [v['lines']]
         lines += ['\n']
@@ -138,7 +146,7 @@ def generate_tex(doc, dst, images):
     lines += ['\\end{document}']
 
     contents = '\n'.join(lines)
-    open(dst+doc._name+'.tex', 'w+').writelines(contents)
+    open(dst + doc._name + '.tex', 'w+').writelines(contents)
     if images:
         print('The TeX file has been generated.')
     else:
@@ -153,15 +161,14 @@ def compile(doc, dst, processor, images, clean, live):
         doc.generate_tex(images=images)
         return
 
-    cmd = 'cd '+doc._files_dir
+    cmd = 'cd ' + doc._files_dir
     cmd += ' &&'
 
     # clean
-    ext = ['aux', 'bbl', 'blg', 'fdb_latexmk',
-           'fls', 'log', 'out', 'pdf', 'synctex.gz']
+    ext = ['aux', 'bbl', 'blg', 'fdb_latexmk', 'fls', 'log', 'out', 'pdf', 'synctex.gz']
     if clean:
         for e in ext:
-            cmd += ' rm '+doc._name+'.'+e+';'
+            cmd += ' rm ' + doc._name + '.' + e + ';'
 
     if processor == 'pdflatex':
         if doc._bibliography:
@@ -170,35 +177,35 @@ def compile(doc, dst, processor, images, clean, live):
             pdflatex_args = ''
 
         # pdflatex
-        cmd += ' pdflatex'+pdflatex_args
-        cmd += ' '+doc._name+'.tex'
+        cmd += ' pdflatex' + pdflatex_args
+        cmd += ' ' + doc._name + '.tex'
         cmd += ' &&'
 
         if doc._bibliography:
             # bibtex
             cmd += ' bibtex'
-            cmd += ' '+doc._name+'.aux'
+            cmd += ' ' + doc._name + '.aux'
             cmd += ' &&'
 
             # pdflatex
-            cmd += ' pdflatex'+pdflatex_args
-            cmd += ' '+doc._name+'.tex'
+            cmd += ' pdflatex' + pdflatex_args
+            cmd += ' ' + doc._name + '.tex'
             cmd += ' &&'
 
             # pdflatex
             cmd += ' pdflatex'
-            cmd += ' '+doc._name+'.tex'
+            cmd += ' ' + doc._name + '.tex'
             cmd += ' &&'
 
     elif processor == 'latexmk':
         cmd += ' latexmk -pdf'
         if live:
             cmd += ' -pvc'
-        cmd += ' '+doc._name+'.tex'
+        cmd += ' ' + doc._name + '.tex'
         cmd += ' &&'
 
     # copy pdf to dst
-    cmd += ' cd - && cp '+doc._files_dir+doc._name+'.pdf '+dst
+    cmd += ' cd - && cp ' + doc._files_dir + doc._name + '.pdf ' + dst
     cmd += ' &&'
 
     cmd += ' echo "All complete."'

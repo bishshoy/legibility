@@ -3,10 +3,7 @@ from legibility import LaTeXPage
 
 def main(_compile_):
     page = LaTeXPage(
-        name='{{name}}',
-        files_dir='{{files_dir}}',
-        images_dir='{{images_dir}}',
-        tables_dir='{{tables_dir}}'
+        name='{{name}}', files_dir='{{files_dir}}', images_dir='{{images_dir}}', tables_dir='{{tables_dir}}'
     )
 
     page.text(
