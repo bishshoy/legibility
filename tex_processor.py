@@ -59,7 +59,7 @@ def generate_tex(doc, dst, images):
     lines += ['\\begin{document}']
 
     # Maketitle before abstract for ICLR
-    if doc._profile == 'iclr':
+    if doc._profile == 'iclr' or doc._profile is None:
         lines += ['\\maketitle']
 
     # Abstract
