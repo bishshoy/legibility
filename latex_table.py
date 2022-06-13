@@ -257,12 +257,12 @@ class LaTeXTable(LaTeXPage):
         self.text(lines)
         self._finalized = True
 
-    def generate_tex(self, dst=None, images=True):
+    def generate_tex(self, dst=None, images='png'):
         if not self._finalized:
             self.finalize()
         return super().generate_tex(dst, images)
 
-    def compile(self, dst='./', processor='latexmk', images=True, clean=True, live=False):
+    def compile(self, dst='./', processor='latexmk', images='png', clean=True, live=False):
         if not self._finalized:
             self.finalize()
         return super().compile(dst, processor, images, clean, live)

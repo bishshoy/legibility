@@ -5,9 +5,6 @@ import os
 
 
 def generate_tex(doc, dst, images):
-    if not images:
-        generate_blank_images(doc)
-
     if dst == None:
         dst = doc._files_dir
 
@@ -28,10 +25,14 @@ def generate_tex(doc, dst, images):
             lines += ['\\usepackage{' + i + '}']
 
     # Commands
-    if images:
+    if images == 'png':
         lines += ['\\graphicspath{{../' + doc._images_dir + '}}']
-    else:
-        lines += ['\\graphicspath{{../' + doc._images_dir + '__images__/}}']
+    elif images == 'jpeg':
+        generate_jpeg_images(doc)
+        lines += ['\\graphicspath{{../' + doc._images_dir + '__images__/jpeg/}}']
+    elif images == 'bw':
+        generate_bw_images(doc)
+        lines += ['\\graphicspath{{../' + doc._images_dir + '__images__/bw/}}']
     lines += doc._commands
 
     # Title
