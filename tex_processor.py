@@ -94,33 +94,16 @@ def generate_tex(doc, dst, images):
             lines += ['\\label{' + v['label'] + '}']
             lines += [v['lines']]
         if tag == '_gx':
-            if v['figure'] == 'inline':
-                lines += ['']
-            else:
-                top = '*' if v['top'] else ''
-                lines += ['\\begin{figure' + top + '}[' + v['figure'] + ']']
-                if v['centered']:
-                    lines += ['\\centering']
-            lines += [
-                '\\includegraphics['
-                + 'scale='
-                + v['scale']
-                + ','
-                + 'width=\\'
-                + v['width']
-                + ']'
-                + '{'
-                + v['src']
-                + '}'
-            ]
-            if v['figure'] == 'inline':
-                lines += ['']
-            else:
-                if v['caption']:
-                    lines += ['\\caption{' + v['caption'] + '}']
-                if v['label']:
-                    lines += ['\\label{' + v['label'] + '}']
-                lines += ['\\end{figure' + top + '}']
+            star = '*' if v['twocolumn'] else ''
+            lines += ['\\begin{figure' + star + '}[!' + v['location'] + ']']
+            if v['centered']:
+                lines += ['\\centering']
+            lines += ['\\includegraphics[' + 'width=' + v['width'] + ']' + '{' + v['src'] + '}']
+            if v['caption']:
+                lines += ['\\caption{' + v['caption'] + '}']
+            if v['label']:
+                lines += ['\\label{' + v['label'] + '}']
+            lines += ['\\end{figure' + star + '}']
         if tag == '_tb':
             lines += [v['lines']]
         if tag == '_tt':

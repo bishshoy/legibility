@@ -158,14 +158,20 @@ class LaTeXDocument:
             self._contents[self.__idx__() + '_tb'] = {'lines': ''}
             self.__append_page__(parsed[parsed_type], lines_only=True)
 
-    def graphics(self, src, figure='inline', top=False, centered=True, scale=1.0, width='textwidth'):
+    def graphics(self, src, location='top', width='\\columnwidth', twocolumn=False, centered=True):
+        assert location in ['top', 'here', 'bottom'], 'Incorrect location tag.'
+        if location == 'top':
+            location = 't'
+        elif location == 'here':
+            location = 'h'
+        elif location == 'bottom':
+            location = 'b'
         self._contents[self.__idx__() + '_gx'] = {
             'src': src,
-            'figure': figure,
-            'top': top,
-            'centered': centered,
-            'scale': str(scale),
+            'location': location,
             'width': str(width),
+            'twocolumn': twocolumn,
+            'centered': centered,
             'caption': self._captions.get(src, None),
             'label': self._labels.get(src, None),
         }
