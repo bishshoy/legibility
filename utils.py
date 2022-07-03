@@ -30,9 +30,13 @@ def generate_jpeg_images(doc):
     files = [x for x in files if x[-3:] == 'png']
 
     def process(file):
-        if not os.path.exists(dst + file):
+        dst_file = file[:-4] + '.jpg'
+        if not os.path.exists(dst + dst_file):
+            print('Processing', dst_file)
             img = Image.open(images_dir + file)
-            img = img.convert('RGB')
-            img.save(dst + file[:-4] + '.jpg')
+            img_transformed = Image.new('RGBA', img.size, (255, 255, 255))
+            img_transformed.paste(img, (0, 0), img)
+            img_transformed = img_transformed.convert('RGB')
+            img_transformed.save(dst + dst_file)
 
     Pool(4).map(process, files)

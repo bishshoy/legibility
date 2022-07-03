@@ -21,9 +21,7 @@ class LaTeXTable(LaTeXPage):
         self._initialized = False
         self._finalized = False
 
-        self._tight = False
-        self._here = True
-        self._top = None
+        self._location = 't'
         self._centered = True
 
         self._full_horizontal_locations = {}
@@ -68,12 +66,10 @@ class LaTeXTable(LaTeXPage):
 
         self._initialized = True
 
-    def tight_fit(self):
-        self._tight = True
-
-    def position(self, here=False, top=None, centered=True):
-        self._here = here
-        self._top = top
+    def location(self, location='top', centered=True):
+        _location = {'top': 't', 'here': 'h', 'bottom': 'b'}
+        assert location in _location.keys(), 'location must be ' + ' '.join(_location.keys())
+        self._location = _location[location]
         self._centered = centered
 
     def left_align(self, *columns):
@@ -111,17 +107,21 @@ class LaTeXTable(LaTeXPage):
             assert l >= 0 and l <= self._num_columns, 'column ' + str(l) + ' does not exist'
             self._vertical_locations[l] = True
 
-    def horizontal_merge(self, cell, alignment='center'):
-        assert cell[0] > 0 and cell[0] <= self._num_rows, 'cell outside the table'
-        assert cell[1] > 0 and cell[1] <= self._num_columns, 'cell outside the table'
+    def grid(self):
+        [self.full_horizontal_line(x) for x in range(self._num_rows + 1)]
+        [self.vertical_line(x) for x in range(self._num_columns + 1)]
+
+    def horizontal_merge(self, from_cell, num_columns=2, alignment='center'):
+        assert from_cell[0] > 0 and from_cell[0] <= self._num_rows, 'from_cell outside the table'
+        assert from_cell[1] > 0 and from_cell[1] <= self._num_columns, 'from_cell outside the table'
         _alignment = {'left': 'l', 'right': 'r', 'center': 'c'}
         assert alignment in _alignment.keys(), 'alignment must be ' + ' '.join(_alignment.keys())
-        self._cell_merges[(cell[0] - 1, cell[1] - 1)] = ('horizontal', _alignment[alignment])
+        self._cell_merges[(from_cell[0] - 1, from_cell[1] - 1)] = ('horizontal', num_columns, _alignment[alignment])
 
-    def vertical_merge(self, cell, adjustment=2):
-        assert cell[0] > 0 and cell[0] <= self._num_rows, 'cell outside the table'
-        assert cell[1] > 0 and cell[1] <= self._num_columns, 'cell outside the table'
-        self._cell_merges[(cell[0] - 1, cell[1] - 1)] = ('vertical', str(adjustment))
+    def vertical_merge(self, from_cell, num_rows):
+        assert from_cell[0] > 0 and from_cell[0] <= self._num_rows, 'from_cell outside the table'
+        assert from_cell[1] > 0 and from_cell[1] <= self._num_columns, 'from_cell outside the table'
+        self._cell_merges[(from_cell[0] - 1, from_cell[1] - 1)] = ('vertical', num_rows, '')
 
     def bold(self, *cells):
         for cell in cells:
@@ -158,33 +158,19 @@ class LaTeXTable(LaTeXPage):
             raise SyntaxError('table has already been finalized once')
 
         lines = []
+        lines += ['\\begin{table}[!' + self._location + ']']
 
-        if not self._tight:
-            lines += ['\\begin{table}']
-        else:
-            lines += ['\\begin{adjustwidth}{-2.5 cm}{-2.5 cm}']
-            if self._centered:
-                lines += ['\\centering']
-            lines += ['\\begin{threeparttable}']
-
-        _position_text = '['
-        if self._here:
-            _position_text += 'h'
-        if self._top is not None:
-            if self._top:
-                _position_text += 't'
-            else:
-                _position_text += 'b'
-        _position_text += ']'
-
-        lines[-1] += _position_text
-
-        if not self._tight:
-            if self._centered:
-                lines += ['\\centering']
+        if self._centered:
+            lines += ['\\centering']
 
         if self._caption:
             lines += ['\\caption{' + self._caption + '}']
+
+        if self._label:
+            lines += ['\\label{' + self._label + '}']
+
+        if self._caption:
+            lines += ['\\vspace{5pt}']
 
         lines += ['\\begin{tabular}']
 
@@ -197,9 +183,6 @@ class LaTeXTable(LaTeXPage):
                 _alignment_text += '|'
 
         lines[-1] += '{' + _alignment_text + '}'
-
-        if self._label:
-            lines += ['\\label{' + self._label + '}']
 
         if self._full_horizontal_locations[0]:
             lines += ['\\toprule']
@@ -214,18 +197,28 @@ class LaTeXTable(LaTeXPage):
             for _x, _y in self._horizontal_locations[x]:
                 lines += ['\\cmidrule{' + str(_x + 1) + '-' + str(_y) + '}']
 
+            skip_next = 0
             for y in range(self._num_columns):
+                if skip_next:
+                    skip_next -= 1
+                    continue
+
                 braces = 0
 
+                if not (y == 0):
+                    _line += ' & '
+
                 # Mergers
-                target_merge, a_param = self._cell_merges.get((x, y), (None, None))
+                target_merge, num_positions, alignment = self._cell_merges.get((x, y), (None, None, None))
 
                 if target_merge == 'horizontal':
-                    _line += '\\multicolumn{2}{' + a_param + '}{'
+                    vert_line = '|' if self._vertical_locations[y] else ''
+                    _line += '\\multicolumn{' + str(num_positions) + '}{' + alignment + vert_line + '}{'
+                    skip_next = num_positions - 1
                     braces += 1
 
                 elif target_merge == 'vertical':
-                    _line += '\\multirow{' + a_param + '}{*}{'
+                    _line += '\\multirow{' + str(num_positions) + '}{*}{'
                     braces += 1
 
                 if [x, y] in self._underlined_values:
@@ -238,20 +231,13 @@ class LaTeXTable(LaTeXPage):
 
                 _line += self._values[x][y] + '}' * braces
 
-                if not (y == self._num_columns - 1 or target_merge == 'horizontal'):
-                    _line += ' & '
-
             lines += [_line + ' \\\\']
 
         if self._full_horizontal_locations[self._num_rows]:
             lines += ['\\bottomrule']
 
         lines += ['\\end{tabular}']
-
-        if not self._tight:
-            lines += ['\\end{table}']
-        else:
-            lines += ['\\end{threeparttable}\\end{adjustwidth}']
+        lines += ['\\end{table}']
 
         lines = '\n'.join(lines)
         self.text(lines)

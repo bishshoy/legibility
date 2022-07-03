@@ -146,11 +146,13 @@ class LaTeXDocument:
             Only .py or .tex files allowed for creating tables.
             Include captions and labels in the body of the table.
             '''
+
         name = src.split('.')[0]
         if src[-3:] == '.py':
             parsed, parsed_type = self.__parse__(src, name, detect='table')
         elif src[-4:] == '.tex':
             parsed, parsed_type = self.__parse__(src, name, detect='ext')
+
         if parsed_type == 'lines':
             self._contents[self.__idx__() + '_tb'] = {'lines': parsed[parsed_type]}
         elif parsed_type == 'page':
@@ -159,16 +161,11 @@ class LaTeXDocument:
             self.__append_page__(parsed[parsed_type], lines_only=True)
 
     def graphics(self, src, location='top', width='\\columnwidth', twocolumn=False, centered=True):
-        assert location in ['top', 'here', 'bottom'], 'Incorrect location tag.'
-        if location == 'top':
-            location = 't'
-        elif location == 'here':
-            location = 'h'
-        elif location == 'bottom':
-            location = 'b'
+        _location = {'top': 't', 'here': 'h', 'bottom': 'b'}
+        assert location in _location.keys(), 'location must be ' + ' '.join(_location.keys())
         self._contents[self.__idx__() + '_gx'] = {
             'src': src,
-            'location': location,
+            'location': _location[location],
             'width': str(width),
             'twocolumn': twocolumn,
             'centered': centered,
